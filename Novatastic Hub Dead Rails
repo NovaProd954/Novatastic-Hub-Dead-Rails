@@ -1,0 +1,476 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- Initialize variables
+local originalSize = UDim2.new(0, 350, 0, 300)
+local isMinimized = false
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NovatasticHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = player.PlayerGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = originalSize
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.5
+MainFrame.Active = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- Title Bar
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+TitleBar.BackgroundTransparency = 1
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -70, 1, 0)
+Title.Text = "Novatastic Hub - Dead Rails"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+local TitleGradient = Instance.new("UIGradient")
+TitleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.new(0, 0.5, 1)),
+    ColorSequenceKeypoint.new(1, Color3.new(0, 0, 1))
+})
+TitleGradient.Rotation = -90
+TitleGradient.Parent = Title
+
+-- Control Buttons
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -60, 0.5, -12)
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Position = UDim2.new(1, -30, 0.5, -12)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.BackgroundColor3 = Color3.new(1, 0, 0)
+
+-- ScrollingFrame
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -10, 1, -50)
+ScrollFrame.Position = UDim2.new(0, 5, 0, 40)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 8
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 10)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.Parent = ScrollFrame
+
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+end)
+
+-- Button Factory
+local function createButton(name)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.9, 0, 0, 60)
+    button.Text = name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 18
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.new(0, 0.5, 1)),
+        ColorSequenceKeypoint.new(1, Color3.new(0, 0, 1))
+    })
+    gradient.Rotation = -90
+    gradient.Parent = button
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+    
+    return button
+end
+
+-- Anti-Die System (Modified for LocalPlayer)
+local AntiDieButton = createButton("Anti-Die")
+local antiDieActive = false
+local healthConnection
+
+local function maintainImmortality()
+    while antiDieActive and task.wait(0.3) do
+        local character = player.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            humanoid.Health = 100
+            
+            if not healthConnection then
+                healthConnection = humanoid.HealthChanged:Connect(function()
+                    if humanoid.Health < 100 then
+                        humanoid.Health = 100
+                    end
+                end)
+            end
+        end
+    end
+end
+
+AntiDieButton.MouseButton1Click:Connect(function()
+    antiDieActive = not antiDieActive
+    AntiDieButton.Text = antiDieActive and "Anti-Die [ON]" or "Anti-Die"
+    
+    if antiDieActive then
+        maintainImmortality()
+        player.CharacterAdded:Connect(function()
+            maintainImmortality()
+        end)
+    else
+        if healthConnection then
+            healthConnection:Disconnect()
+            healthConnection = nil
+        end
+    end
+end)
+
+-- Noclip System
+local NoclipButton = createButton("Noclip")
+local noclipActive = false
+local noclipConnection
+
+local function noclipCharacter(character)
+    if character then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end
+
+NoclipButton.MouseButton1Click:Connect(function()
+    noclipActive = not noclipActive
+    NoclipButton.Text = noclipActive and "Noclip [ON]" or "Noclip"
+    
+    if noclipActive then
+        noclipCharacter(player.Character)
+        noclipConnection = RunService.Stepped:Connect(function()
+            if player.Character then
+                for _, part in pairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+        
+        player.CharacterAdded:Connect(function(newChar)
+            noclipCharacter(newChar)
+        end)
+    else
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+    end
+end)
+
+-- Grab Tool System with Permanent Collision Fix
+local GrabToolButton = createButton("Grab Tool")
+local isDraggingItem = false
+local grabIcon
+
+local function createGrabIcon()
+    if not grabIcon then
+        grabIcon = Instance.new("ImageButton")
+        grabIcon.Name = "GrabToolIcon"
+        grabIcon.Size = UDim2.new(0, 100, 0, 100)
+        grabIcon.Position = UDim2.new(1, -120, 0.5, -50)
+        grabIcon.Image = "rbxassetid://7072717142"
+        grabIcon.ImageColor3 = Color3.new(1, 1, 1)
+        grabIcon.Visible = false
+        grabIcon.ZIndex = 10
+        grabIcon.Parent = ScreenGui
+
+        local iconCorner = Instance.new("UICorner")
+        iconCorner.CornerRadius = UDim.new(0, 12)
+        iconCorner.Parent = grabIcon
+    end
+end
+
+local function universalWeld(item)
+    if not item then return end
+    
+    local mouse = player:GetMouse()
+    local ray = Ray.new(mouse.UnitRay.Origin, mouse.UnitRay.Direction * 1000)
+    local _, position = workspace:FindPartOnRay(ray)
+    
+    -- Create collision-enabled anchor
+    local anchor = Instance.new("Part")
+    anchor.Anchored = true
+    anchor.CanCollide = true
+    anchor.Transparency = 1
+    anchor.Size = Vector3.new(2, 2, 2)  -- Increased size for better collision
+    anchor.Position = position
+    anchor.Parent = workspace
+    
+    -- Force collision properties
+    if item:IsA("Model") then
+        local primary = item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")
+        if primary then
+            primary.CanCollide = true
+            primary.Anchored = false
+        end
+        for _, part in pairs(item:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+                part.Anchored = false
+                part.Massless = false
+            end
+        end
+    elseif item:IsA("BasePart") then
+        item.CanCollide = true
+        item.Anchored = false
+        item.Massless = false
+    end
+    
+    -- Physics refresh
+    RunService.Heartbeat:Wait()
+    
+    -- Fire weld event
+    local args = { item, anchor }
+    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("RequestWeld"):FireServer(unpack(args))
+    
+    -- Continuous collision enforcement
+    spawn(function()
+        while item.Parent do
+            if item:IsA("Model") then
+                for _, part in pairs(item:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                        part.Massless = false
+                    end
+                end
+            elseif item:IsA("BasePart") then
+                item.CanCollide = true
+                part.Massless = false
+            end
+            RunService.Heartbeat:Wait()
+        end
+    end)
+    
+    -- Anchor cleanup
+    game:GetService("Debris"):AddItem(anchor, 5)
+end
+
+GrabToolButton.MouseButton1Click:Connect(function()
+    createGrabIcon()
+    grabIcon.Visible = not grabIcon.Visible
+end)
+
+createGrabIcon()
+grabIcon.MouseButton1Click:Connect(function()
+    if not isDraggingItem then
+        local args = {workspace:WaitForChild("RuntimeItems"):WaitForChild("Newspaper")}
+        game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("RequestStartDrag"):FireServer(unpack(args))
+        grabIcon.ImageColor3 = Color3.new(0, 1, 0)
+        isDraggingItem = true
+    else
+        game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("RequestStopDrag"):FireServer()
+        universalWeld(workspace:WaitForChild("RuntimeItems"):WaitForChild("Newspaper"))
+        grabIcon.ImageColor3 = Color3.new(1, 1, 1)
+        isDraggingItem = false
+    end
+end)
+
+-- Updated GUI Dragging System
+local isDragging = false
+local dragStart, startPos
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        dragStart = input.Position  -- Update dragStart to prevent jumping
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = false
+    end
+end)
+
+-- Minimize System
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    MinimizeButton.Text = isMinimized and "+" or "-"
+    
+    if isMinimized then
+        MainFrame.Size = UDim2.new(0, 350, 0, 30)
+        ScrollFrame.Visible = false
+    else
+        MainFrame.Size = originalSize
+        ScrollFrame.Visible = true
+    end
+end)
+
+-- Close System
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Variables for Kill All Entities feature
+local killEntitiesActive = false
+local targetModelNames = {
+    "Model_ShotgunOutlaw",
+    "Model_ArmoredZombie",
+    "Model_Runner",
+    "Model_Walker",
+    "Model_ZombieSheriff"
+}
+
+-- Function to continuously kill entities
+local function killEntitiesLoop()
+    while killEntitiesActive do
+        for _, descendant in pairs(workspace:GetDescendants()) do
+            if descendant:IsA("Model") and table.find(targetModelNames, descendant.Name) then
+                local humanoid = descendant:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Health = 0
+                end
+            end
+        end
+        wait(1) -- Wait 1 second between iterations
+    end
+end
+
+-- Create the "Kill All Entities" button
+local KillEntitiesButton = createButton("Kill All Entities")
+
+-- Connect the button's click event
+KillEntitiesButton.MouseButton1Click:Connect(function()
+    killEntitiesActive = not killEntitiesActive
+    KillEntitiesButton.Text = killEntitiesActive and "Kill All Entities [ON]" or "Kill All Entities"
+    
+    if killEntitiesActive then
+        spawn(killEntitiesLoop) -- Start the loop in a separate thread
+    end
+end)
+
+-- Auto-Bonds Button Functionality
+local AutoBondsButton = createButton("Auto-Bonds")
+
+-- Function to Create the Full-Screen Auto-Bonds GUI
+local function createAutoBondsGUI()
+    -- Remove any existing Auto-Bonds GUI to avoid overlap
+    local existingGui = ScreenGui:FindFirstChild("AutoBondsGui")
+    if existingGui then
+        existingGui:Destroy()
+    end
+
+    local autoBondsGui = Instance.new("Frame")
+    autoBondsGui.Name = "AutoBondsGui"
+    autoBondsGui.Size = UDim2.new(1, 0, 1, 0)
+    autoBondsGui.Position = UDim2.new(0, 0, 0, 0)
+    autoBondsGui.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+    autoBondsGui.BackgroundTransparency = 0 -- Fully opaque
+    autoBondsGui.ZIndex = 100 -- High ZIndex to ensure it’s on top
+    autoBondsGui.Parent = ScreenGui
+    autoBondsGui.Visible = true -- Explicitly visible
+
+    -- Main Text Label
+    local mainText = Instance.new("TextLabel")
+    mainText.Size = UDim2.new(0.8, 0, 0.2, 0)
+    mainText.Position = UDim2.new(0.1, 0, 0.4, 0) -- Centered vertically
+    mainText.Text = "Novatastic Hub - Dead Rails"
+    mainText.TextColor3 = Color3.new(1, 1, 1) -- White text
+    mainText.Font = Enum.Font.GothamBold
+    mainText.TextSize = 48
+    mainText.BackgroundTransparency = 1
+    mainText.TextWrapped = true
+    mainText.TextTransparency = 0 -- Fully visible
+    mainText.ZIndex = 101 -- Above the GUI frame
+    mainText.Parent = autoBondsGui
+
+    -- Add stroke to main text for better contrast
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Color = Color3.new(138, 235, 255) -- Blue stroke
+    mainStroke.Thickness = 3
+    mainStroke.Parent = mainText
+
+    -- Secondary Text Label
+    local secondaryText = Instance.new("TextLabel")
+    secondaryText.Size = UDim2.new(0.8, 0, 0.1, 0)
+    secondaryText.Position = UDim2.new(0.1, 0, 0.6, 0) -- Below main text
+    secondaryText.Text = "Thanks for using the script! After you see this text, you will be directed by another Auto-Bonds collector so you can get more Bonds. Collecting Bonds in process."
+    secondaryText.TextColor3 = Color3.new(1, 1, 1) -- White text
+    secondaryText.Font = Enum.Font.GothamBold
+    secondaryText.TextSize = 24
+    secondaryText.BackgroundTransparency = 1
+    secondaryText.TextWrapped = true
+    secondaryText.TextTransparency = 0 -- Fully visible
+    secondaryText.ZIndex = 101 -- Above the GUI frame
+    secondaryText.Parent = autoBondsGui
+
+    -- Add stroke to secondary text for better contrast
+    local secondaryStroke = Instance.new("UIStroke")
+    secondaryStroke.Color = Color3.new(138, 235, 255) -- Blue stroke
+    secondaryStroke.Thickness = 1.5
+    secondaryStroke.Parent = secondaryText
+
+    print("Auto-Bonds GUI created with text: " .. mainText.Text .. " and " .. secondaryText.Text) -- Debug print
+
+    return autoBondsGui
+end
+
+-- Auto-Bonds Button Click Event
+AutoBondsButton.MouseButton1Click:Connect(function()
+    -- Create and show a new full-screen GUI every time
+    local autoBondsGui = createAutoBondsGUI()
+    autoBondsGui.Visible = true
+    
+    -- Execute the provided script
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/thiennrb7/Script/refs/heads/main/autobond"))()
+    end)
+end)
+
+-- Assemble GUI
+TitleBar.Parent = MainFrame
+Title.Parent = TitleBar
+MinimizeButton.Parent = TitleBar
+CloseButton.Parent = TitleBar
+AntiDieButton.Parent = ScrollFrame
+NoclipButton.Parent = ScrollFrame
+GrabToolButton.Parent = ScrollFrame
+KillEntitiesButton.Parent = ScrollFrame
+AutoBondsButton.Parent = ScrollFrame -- Add the new Auto-Bonds button to ScrollFrame
+ScrollFrame.Parent = MainFrame
+MainFrame.Parent = ScreenGui
+
+-- Mobile Activation
+task.spawn(function()
+    wait(1)
+    ScreenGui.Enabled = true
+    if UIS:GetPlatform() == Enum.Platform.Android then
+        ScreenGui.IgnoreGuiInset = true
+        MainFrame.Active = true
+    end
+end)
