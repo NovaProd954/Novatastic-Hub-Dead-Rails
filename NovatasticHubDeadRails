@@ -572,3 +572,15 @@ KillEntitiesButton.Parent = ScrollFrame
 AutoBondsButton.Parent = ScrollFrame
 ScrollFrame.Parent = MainFrame
 MainFrame.Parent = ScreenGui
+
+-- Mobile Activation
+task.spawn(function()
+    wait(1)
+    if UIS:GetPlatform() == Enum.Platform.Android then
+        ScreenGui.IgnoreGuiInset = true
+        MainFrame.Active = true
+    end
+end)
+
+-- Initially show Device Selection GUI
+DeviceSelectionGui.Enabled = true
