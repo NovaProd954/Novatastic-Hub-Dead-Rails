@@ -12,43 +12,27 @@ local function playClickSound()
     pcall(function() buttonClickSound:Play() end)
 end
 
--- ========== MAIN GUI ==========
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "NovatasticHub"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Enabled = false -- Start hidden
-ScreenGui.ZIndex = 1
-ScreenGui.Parent = player:WaitForChild("PlayerGui")
-
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.4, 0, 0.4, 0)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-MainFrame.BackgroundTransparency = 0.5
-MainFrame.Active = true
-MainFrame.Parent = ScreenGui
-
 -- ========== DEVICE SELECTION GUI ==========
 local DeviceSelectionGui = Instance.new("ScreenGui")
 DeviceSelectionGui.Name = "DeviceSelectionGui"
 DeviceSelectionGui.Enabled = true
-DeviceSelectionGui.ZIndex = 2 -- Above main GUI
-DeviceSelectionGui.Parent = player.PlayerGui
+DeviceSelectionGui.IgnoreGuiInset = true -- For mobile top bar
+DeviceSelectionGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+DeviceSelectionGui.Parent = player:WaitForChild("PlayerGui")
 
 local SelectionFrame = Instance.new("Frame")
-SelectionFrame.Size = UDim2.new(0.6, 0, 0.4, 0)
-SelectionFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+SelectionFrame.Size = UDim2.new(0.6, 0, 0.4, 0) -- 60% width, 40% height
+SelectionFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Center
 SelectionFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 SelectionFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 SelectionFrame.BackgroundTransparency = 0.5
 SelectionFrame.ZIndex = 100
 SelectionFrame.Parent = DeviceSelectionGui
- 
+
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = SelectionFrame
- 
+
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 50)
 Title.Text = "What's your device?"
@@ -58,7 +42,7 @@ Title.TextSize = 24
 Title.BackgroundTransparency = 1
 Title.ZIndex = 101
 Title.Parent = SelectionFrame
- 
+
 -- Buttons for device selection
 local CellphoneButton = Instance.new("TextButton")
 CellphoneButton.Size = UDim2.new(0.8, 0, 0, 40)
@@ -68,7 +52,7 @@ CellphoneButton.TextColor3 = Color3.new(1, 1, 1)
 CellphoneButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
 CellphoneButton.ZIndex = 101
 CellphoneButton.Parent = SelectionFrame
- 
+
 local TabletButton = Instance.new("TextButton")
 TabletButton.Size = UDim2.new(0.8, 0, 0, 40)
 TabletButton.Position = UDim2.new(0.1, 0, 0.5, 0)
@@ -77,7 +61,7 @@ TabletButton.TextColor3 = Color3.new(1, 1, 1)
 TabletButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
 TabletButton.ZIndex = 101
 TabletButton.Parent = SelectionFrame
- 
+
 local PCButton = Instance.new("TextButton")
 PCButton.Size = UDim2.new(0.8, 0, 0, 40)
 PCButton.Position = UDim2.new(0.1, 0, 0.7, 0)
@@ -86,7 +70,100 @@ PCButton.TextColor3 = Color3.new(1, 1, 1)
 PCButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
 PCButton.ZIndex = 101
 PCButton.Parent = SelectionFrame
- 
+
+print("Device Selection GUI created") -- Debug print
+
+-- ========== MAIN GUI ==========
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NovatasticHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false -- Start hidden
+ScreenGui.IgnoreGuiInset = true -- For mobile
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0.4, 0, 0.4, 0) -- Default, updated later
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150) -- Your requested position
+MainFrame.AnchorPoint = Vector2.new(0, 0.5) -- Your requested anchor
+MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.5
+MainFrame.Active = true
+MainFrame.ZIndex = 10 -- Ensure visibility
+MainFrame.Parent = ScreenGui
+
+-- Fallback for small screens
+if UIS.TouchEnabled then
+    MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Scale-based for mobile
+    MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+end
+
+local UICornerMain = Instance.new("UICorner")
+UICornerMain.CornerRadius = UDim.new(0, 8)
+UICornerMain.Parent = MainFrame
+
+-- Title Bar
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+TitleBar.BackgroundTransparency = 1
+TitleBar.ZIndex = 11
+TitleBar.Parent = MainFrame
+
+local TitleMain = Instance.new("TextLabel")
+TitleMain.Size = UDim2.new(1, -70, 1, 0)
+TitleMain.Text = "Novatastic Hub - Dead Rails"
+TitleMain.TextColor3 = Color3.new(1, 1, 1)
+TitleMain.Font = Enum.Font.GothamBold
+TitleMain.TextSize = 18
+TitleMain.ZIndex = 12
+TitleMain.Parent = TitleBar
+
+local TitleGradient = Instance.new("UIGradient")
+TitleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.new(0, 0.5, 1)),
+    ColorSequenceKeypoint.new(1, Color3.new(0, 0, 1))
+})
+TitleGradient.Rotation = -90
+TitleGradient.Parent = TitleMain
+
+-- Control Buttons
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -60, 0.5, -12)
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+MinimizeButton.ZIndex = 12
+MinimizeButton.Parent = TitleBar
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Position = UDim2.new(1, -30, 0.5, -12)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.BackgroundColor3 = Color3.new(1, 0, 0)
+CloseButton.ZIndex = 12
+CloseButton.Parent = TitleBar
+
+-- ScrollingFrame
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -10, 1, -50)
+ScrollFrame.Position = UDim2.new(0, 5, 0, 40)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 8
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollFrame.ZIndex = 11
+ScrollFrame.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 10)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.Parent = ScrollFrame
+
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+end)
+
 -- Function to set main GUI size
 local function setMainGuiSize(device)
     local widthScale, heightScale
@@ -99,138 +176,61 @@ local function setMainGuiSize(device)
     end
     return UDim2.new(widthScale, 0, heightScale, 0)
 end
- 
+
 -- Function to handle device selection
 local function onDeviceSelected(device)
     playClickSound()
     DeviceSelectionGui:Destroy()
     local mainSize = setMainGuiSize(device)
     
-    -- Ensure MainFrame exists and set its size
     if MainFrame then
         MainFrame.Size = mainSize
         ScreenGui.Enabled = true
-        print("Main GUI enabled with size:", mainSize)
+        print("Main GUI enabled with size:", tostring(mainSize), "Position:", tostring(MainFrame.Position))
     else
         warn("MainFrame not found!")
     end
 end
- 
+
 -- Connect buttons
 CellphoneButton.MouseButton1Click:Connect(function()
     onDeviceSelected("Cellphone")
 end)
- 
+
 TabletButton.MouseButton1Click:Connect(function()
     onDeviceSelected("Tablet")
 end)
- 
+
 PCButton.MouseButton1Click:Connect(function()
     onDeviceSelected("Computer/PC")
 end)
- 
--- Create Main GUI (initially disabled)
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "NovatasticHub"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Enabled = false
-ScreenGui.Parent = player.PlayerGui
- 
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.4, 0, 0.4, 0) -- Default size, updated later
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-MainFrame.BackgroundTransparency = 0.5
-MainFrame.Active = true
-MainFrame.Parent = ScreenGui
- 
-local UICornerMain = Instance.new("UICorner")
-UICornerMain.CornerRadius = UDim.new(0, 8)
-UICornerMain.Parent = MainFrame
- 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 50)
-Title.Text = "What's your device?"
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 24
-Title.BackgroundTransparency = 1
-Title.ZIndex = 101
-Title.Parent = SelectionFrame
- 
--- Buttons for device selection
-local CellphoneButton = Instance.new("TextButton")
-CellphoneButton.Size = UDim2.new(0.8, 0, 0, 40)
-CellphoneButton.Position = UDim2.new(0.1, 0, 0.3, 0)
-CellphoneButton.Text = "Cellphone"
-CellphoneButton.TextColor3 = Color3.new(1, 1, 1)
-CellphoneButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
-CellphoneButton.ZIndex = 101
-CellphoneButton.Parent = SelectionFrame
- 
-local TabletButton = Instance.new("TextButton")
-TabletButton.Size = UDim2.new(0.8, 0, 0, 40)
-TabletButton.Position = UDim2.new(0.1, 0, 0.5, 0)
-TabletButton.Text = "Tablet"
-TabletButton.TextColor3 = Color3.new(1, 1, 1)
-TabletButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
-TabletButton.ZIndex = 101
-TabletButton.Parent = SelectionFrame
- 
-local PCButton = Instance.new("TextButton")
-PCButton.Size = UDim2.new(0.8, 0, 0, 40)
-PCButton.Position = UDim2.new(0.1, 0, 0.7, 0)
-PCButton.Text = "Computer/PC"
-PCButton.TextColor3 = Color3.new(1, 1, 1)
-PCButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
-PCButton.ZIndex = 101
-PCButton.Parent = SelectionFrame
- 
-print("Device Selection GUI created")  -- Debug print
- 
--- Function to set main GUI size based on device using scale
-local function setMainGuiSize(device)
-    local widthScale, heightScale
-    if device == "Cellphone" then
-        widthScale, heightScale = 0.8, 0.6  -- 80% width, 60% height
-    elseif device == "Tablet" then
-        widthScale, heightScale = 0.6, 0.5  -- 60% width, 50% height
-    else  -- Computer/PC
-        widthScale, heightScale = 0.4, 0.4  -- 40% width, 40% height
-    end
-    return UDim2.new(widthScale, 0, heightScale, 0)
-end
- 
--- Connect button clicks
-local function onDeviceSelected(device)
-    playClickSound()
-    DeviceSelectionGui:Destroy()
-    local mainSize = setMainGuiSize(device)
-    MainFrame.Size = mainSize
-    ScreenGui.Enabled = true
-    print("Main GUI enabled with size: " .. tostring(mainSize))  -- Debug print
-end
- 
-CellphoneButton.MouseButton1Click:Connect(function()
-    onDeviceSelected("Cellphone")
-end)
- 
-TabletButton.MouseButton1Click:Connect(function()
-    onDeviceSelected("Tablet")
-end)
- 
-PCButton.MouseButton1Click:Connect(function()
-    onDeviceSelected("Computer/PC")
-end)
- 
--- ========== ANTI-DIE SYSTEM ==========
+
+-- ========== BUTTON FACTORY ==========
 local function createButton(name)
     local button = Instance.new("TextButton")
-    -- Your original button creation code
+    button.Size = UDim2.new(0.9, 0, 0, 60)
+    button.Text = name
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 18
+    button.ZIndex = 11
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.new(0, 0.5, 1)),
+        ColorSequenceKeypoint.new(1, Color3.new(0, 0, 1))
+    })
+    gradient.Rotation = -90
+    gradient.Parent = button
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+    
     return button
 end
 
+-- ========== ANTI-DIE SYSTEM ==========
 local AntiDieButton = createButton("Anti-Die")
 local antiDieActive = false
 local healthConnection
@@ -239,7 +239,15 @@ local function maintainImmortality()
     while antiDieActive and task.wait(0.3) do
         local character = player.Character
         if character and character:FindFirstChild("Humanoid") then
-            character.Humanoid.Health = 100
+            local humanoid = character.Humanoid
+            humanoid.Health = 100
+            if not healthConnection then
+                healthConnection = humanoid.HealthChanged:Connect(function()
+                    if humanoid.Health < 100 then
+                        humanoid.Health = 100
+                    end
+                end)
+            end
         end
     end
 end
@@ -249,6 +257,12 @@ AntiDieButton.MouseButton1Click:Connect(function()
     AntiDieButton.Text = antiDieActive and "Anti-Die [ON]" or "Anti-Die"
     if antiDieActive then
         maintainImmortality()
+        player.CharacterAdded:Connect(maintainImmortality)
+    else
+        if healthConnection then
+            healthConnection:Disconnect()
+            healthConnection = nil
+        end
     end
 end)
 
@@ -272,39 +286,54 @@ NoclipButton.MouseButton1Click:Connect(function()
     NoclipButton.Text = noclipActive and "Noclip [ON]" or "Noclip"
     if noclipActive then
         noclipCharacter(player.Character)
+        noclipConnection = RunService.Stepped:Connect(function()
+            noclipCharacter(player.Character)
+        end)
+        player.CharacterAdded:Connect(noclipCharacter)
+    else
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
     end
 end)
 
 -- ========== WELD TOOL SYSTEM ==========
 local WeldToolButton = createButton("Weld Tool")
-local weldIcon = Instance.new("ImageButton")
-weldIcon.Image = "rbxassetid://7072717142"
-weldIcon.ImageColor3 = Color3.new(1, 1, 1)
-weldIcon.Visible = false
-weldIcon.Parent = ScreenGui -- Critical parenting fix
-local iconCorner = Instance.new("UICorner")
+local isDraggingItem = false
+local weldIcon
+
+local function createWeldIcon()
+    if not weldIcon then
+        weldIcon = Instance.new("ImageButton")
+        weldIcon.Name = "WeldToolIcon"
+        weldIcon.Size = UDim2.new(0, 100, 0, 100)
+        weldIcon.Position = UDim2.new(1, -120, 0.5, -50)
+        weldIcon.Image = "rbxassetid://7072717142"
+        weldIcon.ImageColor3 = Color3.new(1, 1, 1)
+        weldIcon.Visible = false
+        weldIcon.ZIndex = 10
+        weldIcon.Parent = ScreenGui
+        local iconCorner = Instance.new("UICorner")
         iconCorner.CornerRadius = UDim.new(0, 12)
         iconCorner.Parent = weldIcon
     end
 end
- 
+
 local function universalWeld(item)
     if not item then return end
-    
     local mouse = player:GetMouse()
     local ray = Ray.new(mouse.UnitRay.Origin, mouse.UnitRay.Direction * 1000)
     local _, position = workspace:FindPartOnRay(ray)
     
-    -- Create collision-enabled anchor
     local anchor = Instance.new("Part")
     anchor.Anchored = true
     anchor.CanCollide = true
     anchor.Transparency = 1
-    anchor.Size = Vector3.new(2, 2, 2)  -- Increased size for better collision
+    anchor.Size = Vector3.new(2, 2, 2)
     anchor.Position = position
     anchor.Parent = workspace
     
-    -- Force collision properties
     if item:IsA("Model") then
         local primary = item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")
         if primary then
@@ -324,14 +353,10 @@ local function universalWeld(item)
         item.Massless = false
     end
     
-    -- Physics refresh
     RunService.Heartbeat:Wait()
-    
-    -- Fire weld event
     local args = { item, anchor }
     game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("RequestWeld"):FireServer(unpack(args))
     
-    -- Continuous collision enforcement
     spawn(function()
         while item.Parent do
             if item:IsA("Model") then
@@ -343,21 +368,20 @@ local function universalWeld(item)
                 end
             elseif item:IsA("BasePart") then
                 item.CanCollide = true
-                item.Massless = false
+                part.Massless = false
             end
             RunService.Heartbeat:Wait()
         end
     end)
     
-    -- Anchor cleanup
     game:GetService("Debris"):AddItem(anchor, 5)
 end
- 
+
 WeldToolButton.MouseButton1Click:Connect(function()
     createWeldIcon()
     weldIcon.Visible = not weldIcon.Visible
 end)
- 
+
 createWeldIcon()
 weldIcon.MouseButton1Click:Connect(function()
     if not isDraggingItem then
@@ -372,73 +396,156 @@ weldIcon.MouseButton1Click:Connect(function()
         isDraggingItem = false
     end
 end)
- 
+
 -- ========== KILL ALL ENTITIES ==========
--- Variables for Kill All Entities feature
 local killEntitiesActive = false
 local targetModelNames = {
-"Model_ShotgunOutlaw",
-"Model_ArmoredZombie",
-"Model_Runner",
-"Model_Walker",
-"Model_ZombieSheriff"
+    "Model_ShotgunOutlaw",
+    "Model_ArmoredZombie",
+    "Model_Runner",
+    "Model_Walker",
+    "Model_ZombieSheriff"
 }
- 
--- Function to continuously kill entities
+
 local function killEntitiesLoop()
-while killEntitiesActive do
-for _, descendant in pairs(workspace:GetDescendants()) do
-if descendant:IsA("Model") and table.find(targetModelNames, descendant.Name) then
-local humanoid = descendant:FindFirstChildOfClass("Humanoid")
-if humanoid then
-humanoid.Health = 0
-                end
-            end
-        end
-        wait(1) -- Wait 1 second between iterations
-    end
+    while killEntitiesActive do
+        for _, descendant in pairs(workspace:GetDescendants()) do
+            if descendant:IsA("Model") and table.find(targetModelNames, descendant.Name) then
+                local humanoid = descendant:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Health = 0
+                end
+            end
+        end
+        wait(1)
+    end
 end
- 
--- Create the "Kill All Entities" button
+
 local KillEntitiesButton = createButton("Kill All Entities")
- 
--- Connect the button's click event
+
 KillEntitiesButton.MouseButton1Click:Connect(function()
-killEntitiesActive = not killEntitiesActive
-    KillEntitiesButton.Text = killEntitiesActive and "Kill All Entities [ON]" or "Kill All Entities"
-   
-    if killEntitiesActive then
-        spawn(killEntitiesLoop) -- Start the loop in a separate thread
-  end
+    killEntitiesActive = not killEntitiesActive
+    KillEntitiesButton.Text = killEntitiesActive and "Kill All Entities [ON]" or "Kill All Entities"
+    if killEntitiesActive then
+        spawn(killEntitiesLoop)
+    end
 end)
+
 -- ========== AUTO-BONDS ==========
 local AutoBondsButton = createButton("Auto-Bonds")
 
+local function createAutoBondsGUI()
+    local existingGui = ScreenGui:FindFirstChild("AutoBondsGui")
+    if existingGui then
+        existingGui:Destroy()
+    end
+
+    local autoBondsGui = Instance.new("Frame")
+    autoBondsGui.Name = "AutoBondsGui"
+    autoBondsGui.Size = UDim2.new(1, 0, 1, 0)
+    autoBondsGui.Position = UDim2.new(0, 0, 0, 0)
+    autoBondsGui.BackgroundColor3 = Color3.new(0, 0, 0)
+    autoBondsGui.BackgroundTransparency = 0
+    autoBondsGui.ZIndex = 100
+    autoBondsGui.Parent = ScreenGui
+
+    local mainText = Instance.new("TextLabel")
+    mainText.Size = UDim2.new(0.8, 0, 0.2, 0)
+    mainText.Position = UDim2.new(0.1, 0, 0.4, 0)
+    mainText.Text = "Novatastic Hub - Dead Rails"
+    mainText.TextColor3 = Color3.new(1, 1, 1)
+    mainText.Font = Enum.Font.GothamBold
+    mainText.TextSize = 48
+    mainText.BackgroundTransparency = 1
+    mainText.TextWrapped = true
+    mainText.ZIndex = 101
+    mainText.Parent = autoBondsGui
+
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Color = Color3.fromRGB(138, 235, 255)
+    mainStroke.Thickness = 3
+    mainStroke.Parent = mainText
+
+    local secondaryText = Instance.new("TextLabel")
+    secondaryText.Size = UDim2.new(0.8, 0, 0.1, 0)
+    secondaryText.Position = UDim2.new(0.1, 0, 0.6, 0)
+    secondaryText.Text = "Thanks for using the script! After you see this text, you will be directed by another Auto-Bonds collector so you can get more Bonds. Collecting Bonds in process."
+    secondaryText.TextColor3 = Color3.new(1, 1, 1)
+    secondaryText.Font = Enum.Font.GothamBold
+    secondaryText.TextSize = 24
+    secondaryText.BackgroundTransparency = 1
+    secondaryText.TextWrapped = true
+    secondaryText.ZIndex = 101
+    secondaryText.Parent = autoBondsGui
+
+    local secondaryStroke = Instance.new("UIStroke")
+    secondaryStroke.Color = Color3.fromRGB(138, 235, 255)
+    secondaryStroke.Thickness = 1.5
+    secondaryStroke.Parent = secondaryText
+
+    print("Auto-Bonds GUI created")
+    return autoBondsGui
+end
+
 AutoBondsButton.MouseButton1Click:Connect(function()
+    local autoBondsGui = createAutoBondsGUI()
+    autoBondsGui.Visible = true
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/thiennrb7/Script/main/autobond"))()
     end)
 end)
 
--- ========== FINAL SETUP ==========
--- Device selection handler (FIXED)
-local function onDeviceSelected(device)
-    playClickSound()
-    DeviceSelectionGui:Destroy()
-    
-    MainFrame.Size = ({
-        Cellphone = UDim2.new(0.8, 0, 0.6, 0),
-        Tablet = UDim2.new(0.6, 0, 0.5, 0),
-        ["Computer/PC"] = UDim2.new(0.4, 0, 0.4, 0)
-    })[device]
-    
-    ScreenGui.Enabled = true
-    if UIS.TouchEnabled then
-        ScreenGui.IgnoreGuiInset = true
-    end
-end
+-- ========== GUI DRAGGING ==========
+local isDragging = false
+local dragStart, startPos
 
--- Parent all buttons
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        dragStart = input.Position
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = false
+    end
+end)
+
+-- ========== MINIMIZE SYSTEM ==========
+local isMinimized = false
+local originalSize
+
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    MinimizeButton.Text = isMinimized and "+" or "-"
+    if isMinimized then
+        originalSize = MainFrame.Size
+        MainFrame.Size = UDim2.new(MainFrame.Size.X.Scale, 0, 0, 30)
+        ScrollFrame.Visible = false
+    else
+        MainFrame.Size = originalSize
+        ScrollFrame.Visible = true
+    end
+end)
+
+-- ========== CLOSE SYSTEM ==========
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ========== FINAL SETUP ==========
 for _, btn in pairs({AntiDieButton, NoclipButton, WeldToolButton, KillEntitiesButton, AutoBondsButton}) do
     btn.Parent = ScrollFrame
 end
+
+print("Script initialized")
