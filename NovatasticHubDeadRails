@@ -3,35 +3,137 @@ local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- Sound for button click
+-- Sound for button click (handled safely)
 local buttonClickSound = Instance.new("Sound")
 buttonClickSound.SoundId = "rbxassetid://4499400560"
 buttonClickSound.Parent = game:GetService("SoundService")
 
--- Function to play button click sound
+-- Function to safely play button click sound
 local function playClickSound()
-    buttonClickSound:Play()
+    pcall(function() -- Prevents errors from stopping the script
+        buttonClickSound:Play()
+    end)
 end
 
 -- Create Device Selection GUI
 local DeviceSelectionGui = Instance.new("ScreenGui")
 DeviceSelectionGui.Name = "DeviceSelectionGui"
-DeviceSelectionGui.Enabled = true  -- Ensure it's visible
-DeviceSelectionGui.IgnoreGuiInset = true  -- For mobile devices
+DeviceSelectionGui.Enabled = true
+DeviceSelectionGui.IgnoreGuiInset = true
 DeviceSelectionGui.Parent = player.PlayerGui
 
 local SelectionFrame = Instance.new("Frame")
-SelectionFrame.Size = UDim2.new(0.6, 0, 0.4, 0)  -- 60% width, 40% height
-SelectionFrame.Position = UDim2.new(0.5, 0, 0.5, 0)  -- Center on screen
-SelectionFrame.AnchorPoint = Vector2.new(0.5, 0.5)  -- Anchor at center
+SelectionFrame.Size = UDim2.new(0.6, 0, 0.4, 0)
+SelectionFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+SelectionFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 SelectionFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 SelectionFrame.BackgroundTransparency = 0.5
-SelectionFrame.ZIndex = 100  -- High ZIndex to ensure visibility
+SelectionFrame.ZIndex = 100
 SelectionFrame.Parent = DeviceSelectionGui
 
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = SelectionFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "What's your device?"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 24
+Title.BackgroundTransparency = 1
+Title.ZIndex = 101
+Title.Parent = SelectionFrame
+
+-- Buttons for device selection
+local CellphoneButton = Instance.new("TextButton")
+CellphoneButton.Size = UDim2.new(0.8, 0, 0, 40)
+CellphoneButton.Position = UDim2.new(0.1, 0, 0.3, 0)
+CellphoneButton.Text = "Cellphone"
+CellphoneButton.TextColor3 = Color3.new(1, 1, 1)
+CellphoneButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
+CellphoneButton.ZIndex = 101
+CellphoneButton.Parent = SelectionFrame
+
+local TabletButton = Instance.new("TextButton")
+TabletButton.Size = UDim2.new(0.8, 0, 0, 40)
+TabletButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+TabletButton.Text = "Tablet"
+TabletButton.TextColor3 = Color3.new(1, 1, 1)
+TabletButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
+TabletButton.ZIndex = 101
+TabletButton.Parent = SelectionFrame
+
+local PCButton = Instance.new("TextButton")
+PCButton.Size = UDim2.new(0.8, 0, 0, 40)
+PCButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+PCButton.Text = "Computer/PC"
+PCButton.TextColor3 = Color3.new(1, 1, 1)
+PCButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
+PCButton.ZIndex = 101
+PCButton.Parent = SelectionFrame
+
+-- Function to set main GUI size
+local function setMainGuiSize(device)
+    local widthScale, heightScale
+    if device == "Cellphone" then
+        widthScale, heightScale = 0.8, 0.6
+    elseif device == "Tablet" then
+        widthScale, heightScale = 0.6, 0.5
+    else
+        widthScale, heightScale = 0.4, 0.4
+    end
+    return UDim2.new(widthScale, 0, heightScale, 0)
+end
+
+-- Function to handle device selection
+local function onDeviceSelected(device)
+    playClickSound()
+    DeviceSelectionGui:Destroy()
+    local mainSize = setMainGuiSize(device)
+    
+    -- Ensure MainFrame exists and set its size
+    if MainFrame then
+        MainFrame.Size = mainSize
+        ScreenGui.Enabled = true
+        print("Main GUI enabled with size:", mainSize)
+    else
+        warn("MainFrame not found!")
+    end
+end
+
+-- Connect buttons
+CellphoneButton.MouseButton1Click:Connect(function()
+    onDeviceSelected("Cellphone")
+end)
+
+TabletButton.MouseButton1Click:Connect(function()
+    onDeviceSelected("Tablet")
+end)
+
+PCButton.MouseButton1Click:Connect(function()
+    onDeviceSelected("Computer/PC")
+end)
+
+-- Create Main GUI (initially disabled)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NovatasticHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false
+ScreenGui.Parent = player.PlayerGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0.4, 0, 0.4, 0) -- Default size, updated later
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.5
+MainFrame.Active = true
+MainFrame.Parent = ScreenGui
+
+local UICornerMain = Instance.new("UICorner")
+UICornerMain.CornerRadius = UDim.new(0, 8)
+UICornerMain.Parent = MainFrame
 
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 50)
@@ -583,8 +685,8 @@ task.spawn(function()
     if UIS:GetPlatform() == Enum.Platform.Android then
         ScreenGui.IgnoreGuiInset = true
         MainFrame.Active = true
-    end
+end
 end)
 
--- Initially show Device Selection GUI
-DeviceSelectionGui.Enabled = true
+-- Initially show Device Selection GUI 
+DeviceSelectionGUI.Enabled = true
