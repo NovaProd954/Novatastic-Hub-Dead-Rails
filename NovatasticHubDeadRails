@@ -21,8 +21,9 @@ DeviceSelectionGui.IgnoreGuiInset = true  -- For mobile devices
 DeviceSelectionGui.Parent = player.PlayerGui
 
 local SelectionFrame = Instance.new("Frame")
-SelectionFrame.Size = UDim2.new(0, 300, 0, 200)
-SelectionFrame.Position = UDim2.new(0.5, -150, 0.5, -100)  -- Center on screen
+SelectionFrame.Size = UDim2.new(0.6, 0, 0.4, 0)  -- 60% width, 40% height
+SelectionFrame.Position = UDim2.new(0.5, 0, 0.5, 0)  -- Center on screen
+SelectionFrame.AnchorPoint = Vector2.new(0.5, 0.5)  -- Anchor at center
 SelectionFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 SelectionFrame.BackgroundTransparency = 0.5
 SelectionFrame.ZIndex = 100  -- High ZIndex to ensure visibility
@@ -70,17 +71,19 @@ PCButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
 PCButton.ZIndex = 101
 PCButton.Parent = SelectionFrame
 
--- Function to set main GUI size based on device
+print("Device Selection GUI created")  -- Debug print
+
+-- Function to set main GUI size based on device using scale
 local function setMainGuiSize(device)
-    local mainSize
+    local widthScale, heightScale
     if device == "Cellphone" then
-        mainSize = UDim2.new(0, 200, 0, 250)  -- Fits ~6.3-6.5 inch cellphone screens
+        widthScale, heightScale = 0.8, 0.6  -- 80% width, 60% height
     elseif device == "Tablet" then
-        mainSize = UDim2.new(0, 300, 0, 350)  -- Fits ~8-10 inch tablet screens
+        widthScale, heightScale = 0.6, 0.5  -- 60% width, 50% height
     else  -- Computer/PC
-        mainSize = UDim2.new(0, 400, 0, 400)  -- Fits ~24-27 inch computer screens
+        widthScale, heightScale = 0.4, 0.4  -- 40% width, 40% height
     end
-    return mainSize
+    return UDim2.new(widthScale, 0, heightScale, 0)
 end
 
 -- Connect button clicks
@@ -90,6 +93,7 @@ local function onDeviceSelected(device)
     local mainSize = setMainGuiSize(device)
     MainFrame.Size = mainSize
     ScreenGui.Enabled = true
+    print("Main GUI enabled with size: " .. tostring(mainSize))  -- Debug print
 end
 
 CellphoneButton.MouseButton1Click:Connect(function()
@@ -112,7 +116,7 @@ ScreenGui.Enabled = false  -- Start disabled until device is selected
 ScreenGui.Parent = player.PlayerGui
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)  -- Center on screen
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 MainFrame.BackgroundTransparency = 0.5
@@ -431,7 +435,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
     
     if isMinimized then
         originalSize = MainFrame.Size
-        MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, 30)
+        MainFrame.Size = UDim2.new(MainFrame.Size.X.Scale, 0, 0, 30)
         ScrollFrame.Visible = false
     else
         MainFrame.Size = originalSize or setMainGuiSize(selectedDevice)
