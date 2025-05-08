@@ -37,7 +37,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 50)
 Title.Text = "What's your device?"
 Title.TextColor3 = Color3.new(1, 1, 1)
-Title.Font = Enum.Font.Gotham
+Title.Font = Enum.Font.GothamBold
 Title.TextSize = 24
 Title.BackgroundTransparency = 1
 Title.ZIndex = 101
@@ -309,7 +309,7 @@ local function createWeldIcon()
         weldIcon.Name = "WeldToolIcon"
         weldIcon.Size = UDim2.new(0, 100, 0, 100)
         weldIcon.Position = UDim2.new(1, -120, 0.5, -50)
-        weldIcon.Image = "rbxassetid://15713631248"
+        weldIcon.Image = "rbxassetid://7072717142"
         weldIcon.ImageColor3 = Color3.new(1, 1, 1)
         weldIcon.Visible = false
         weldIcon.ZIndex = 10
